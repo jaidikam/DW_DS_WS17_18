@@ -1,0 +1,177 @@
+package ass1;
+
+
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+
+
+public class Sorted_merge {
+
+	public static void main(String[] args) throws IOException {
+		// TODO Auto-generated method stub
+
+		//makeSortedBlocks(path+"file1.txt");
+		mergeSortedBlocks(9);//NrBlocks
+	}
+
+	private static void makeSortedBlocks(String path) throws IOException {
+		FileInputStream inputStream = null;
+		Scanner sc = null;
+		
+		try {
+			
+		    inputStream = new FileInputStream(path);
+		    sc = new Scanner(inputStream, "UTF-8");
+		    long i =0;
+		    int blockcount =0;
+		    List<Entry> entries = new ArrayList<Entry>();
+		    while (sc.hasNextLine() ) {
+		    	
+		        String line = sc.nextLine();
+		        System.out.println(line);
+		        //System.out.println(line.substring(1));
+		       
+		        entries.add(new Entry(Long.parseLong(line.substring(1)), line.substring(0, 1),0)); // crash after 28643239(=i+1) lines
+		        i++;
+		      
+		        //
+		        //instead of arbitrary number of items we should go for something like write to file if certain percentage of ram is full
+		        if (i == 100000) {
+		        	  
+				        System.out.println(i);
+				       // long allocatedMemory = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
+					    printOutMemoryUsage();
+					    Collections.sort(entries);					    
+					    printOutMemoryUsage();
+					    createFile("src\\ass1\\"+String.valueOf(blockcount),entries);
+					    entries.clear(); 
+					    i=0;
+					    System.out.println(entries);
+					    blockcount++;
+					    //break;
+		        }
+		        
+		    }
+		    if (!sc.hasNextLine()){
+		    	createFile("src\\ass1\\"+String.valueOf(blockcount),entries);
+			    entries.clear(); 
+			    NrBlocks = blockcount;
+		    }
+		    // note that Scanner suppresses exceptions
+		    if (sc.ioException() != null) {
+		        throw sc.ioException();
+		    }
+		} finally {
+		    if (inputStream != null) {
+		        inputStream.close();
+		    }
+		    if (sc != null) {
+		        sc.close();
+		    }
+		}
+	}
+	// in parts taken from https://stackoverflow.com/questions/6548157/how-to-write-an-arraylist-of-strings-into-a-text-file
+	private static void createFile(String file, List<Entry> entries)
+            throws IOException {
+        FileWriter writer = new FileWriter(file + ".txt");
+        int size = entries.size();
+        for (int i=0;i<size;i++) {
+            String str = entries.get(i).toString();
+            writer.write(str+System.lineSeparator());
+            if(i < size-1)//**//This prevents creating a blank like at the end of the file**
+                writer.write("\n");
+        }
+        writer.close();
+    }
+	
+	private static void writeToFinalFile(String filename, Entry entry){
+		try(FileWriter fw = new FileWriter(filename, true);
+			    BufferedWriter bw = new BufferedWriter(fw);
+				)
+			{
+				bw.write(entry.toString()+System.lineSeparator());
+			   			  
+			} catch (IOException e) {
+			   System.out.println("Something went wrong");
+			}
+	}
+
+	
+	
+	public void sort_entries(){
+		
+	}
+	
+	private static void mergeSortedBlocks(int NrBlocks) throws IOException{
+		
+		FileInputStream[] inputStreamArr = new FileInputStream[NrBlocks];
+		Scanner[] scArr = new Scanner[NrBlocks];
+		List<Entry> entries = new ArrayList<Entry>();
+		int blockNrOflowest =0;
+		//for each block open a new scanner and write the first element into a list
+		for(int i=0;i<NrBlocks;i++){
+			inputStreamArr[i] = new FileInputStream(path+String.valueOf(i)+".txt");
+			scArr[i] = new Scanner(inputStreamArr[i], "UTF-8");	
+			String line = scArr[i].nextLine();
+		    System.out.println(line);	   		    
+		    System.out.println(path+String.valueOf(i)+".txt");
+		    entries.add(new Entry(Long.parseLong(line.substring(1)), line.substring(0, 1),i));	
+		    
+		}
+		
+		while (scArr[0].hasNextLine() ) {
+		Collections.sort(entries);
+		blockNrOflowest = entries.get(0).blockNr();
+		System.out.println(blockNrOflowest);
+		writeToFinalFile(path+"sortedInput.txt",entries.get(0));	
+		entries.remove(0);
+		String line ="";
+			if(scArr[blockNrOflowest].hasNextLine()){
+			 line = scArr[blockNrOflowest].next();//always returns empty. why??
+			 System.out.println(line);
+			 entries.add(new Entry(Long.parseLong(line.substring(1)), line.substring(0, 1),blockNrOflowest));	
+			}		
+		}			
+	}
+	
+	private static String path = System.getProperty("user.dir")+"\\src\\ass1\\";
+	private static int NrBlocks;
+	
+	//not mine, found here:https://stackoverflow.com/questions/30491253/filewriter-out-of-memory
+	private static void printOutMemoryUsage() {
+	    Runtime runtime = Runtime.getRuntime();
+
+	    NumberFormat format = NumberFormat.getInstance();
+
+	    StringBuilder sb = new StringBuilder();
+	    long maxMemory = runtime.maxMemory();
+	    long allocatedMemory = runtime.totalMemory();
+	    long freeMemory = runtime.freeMemory();
+
+	    sb.append("free memory: " + format.format(freeMemory / 1024) + " ");
+	    sb.append("allocated memory: " + format.format(allocatedMemory / 1024)
+	            + " ");
+	    sb.append("max memory: " + format.format(maxMemory / 1024) + " ");
+	    sb.append("total free memory: "
+	            + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024)
+	            + "<br/>");
+	    System.out.println(sb);
+	}
+	
+	
+	
+}
+

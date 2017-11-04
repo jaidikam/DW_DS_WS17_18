@@ -95,7 +95,7 @@ public class Sorted_merge {
         for (int i=0;i<size;i++) {
             String str = entries.get(i).toString();
             writer.write(str);
-            if(i < size-1)//**//This prevents creating a blank like at the end of the file**
+            if(i < size-1)//**//This prevents creating a blank line at the end of the file**
                 writer.write(System.getProperty("line.separator"));
         }
         writer.close();
@@ -110,7 +110,7 @@ public class Sorted_merge {
 	        for (int i=0;i<size;i++) {
 	        	
 	        	bw.write(list.get(i)+System.getProperty("line.separator"));
-	        	//if(i < size-1)//**//This prevents creating a blank like at the end of the file**
+	        	//if(i < size-1)//**//This prevents creating a blank line at the end of the file**
 	            //    bw.write("\n");
 	        }	      			
 			   			  

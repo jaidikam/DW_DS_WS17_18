@@ -87,7 +87,7 @@ public class Sorted_merge {
 		    }
 		}
 	}
-	// in parts taken from https://stackoverflow.com/questions/6548157/how-to-write-an-arraylist-of-strings-into-a-text-file
+	
 	private static void createFile(String file, List<Entry> entries)
             throws IOException {
         FileWriter writer = new FileWriter(file + ".txt");
@@ -113,7 +113,8 @@ public class Sorted_merge {
 	        	//if(i < size-1)//**//This prevents creating a blank line at the end of the file**
 	            //    bw.write("\n");
 	        }	      			
-			   			  
+			bw.close();
+			fw.close();
 			} catch (IOException e) {
 			   System.out.println("Something went wrong");
 			}
